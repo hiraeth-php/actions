@@ -68,22 +68,6 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	protected function render(string $template_path, array $data = array()): Template
-	{
-		if (!$this->templateManager) {
-			throw new RuntimeException(sprintf(
-				'Render is not supported, no implementation for "%s" is registered',
-				TemplateManager::class
-			));
-		}
-
-		return $this->templateManager->load($template_path, $data);
-	}
-
-
-	/**
-	 *
-	 */
 	protected function response(int $status, array $headers = array()): Response
 	{
 		$response = $this->response;
@@ -93,6 +77,22 @@ abstract class AbstractAction implements ActionInterface
 		}
 
 		return $response->withStatus($status);
+	}
+
+
+	/**
+	 *
+	 */
+	protected function template(string $template_path, array $data = array()): Template
+	{
+		if (!$this->templateManager) {
+			throw new RuntimeException(sprintf(
+				'Render is not supported, no implementation for "%s" is registered',
+				TemplateManager::class
+			));
+		}
+
+		return $this->templateManager->load($template_path, $data);
 	}
 
 
