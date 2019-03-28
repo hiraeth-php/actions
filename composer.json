@@ -1,0 +1,28 @@
+{
+	"name": "hiraeth/actions",
+    "description": "Robust actions for the Hiraeth Nano Framework",
+	"license": "MIT",
+	"authors": [
+		{
+			"name":  "Matthew J. Sahagian",
+			"email": "matthew.sahagian@gmail.com",
+			"role":  "Lead Architect / Developer"
+		}
+	],
+	"require": {
+		"hiraeth/app": "^2.0",
+        "hiraeth/routing": "^1.0",
+        "hiraeth/templates": "^1.0"
+	},
+	"autoload": {
+		"classmap": ["src/"]
+	},
+	"type": "opus-package",
+	"extra": {
+		"opus": {
+			"hiraeth/app": {
+				"config": ""
+			}
+		}
+	}
+}
