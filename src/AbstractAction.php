@@ -50,7 +50,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	protected function redirect(mixed $location, array $params = array(), $type = 303): Response
+	protected function redirect($location, array $params = array(), $type = 303): Response
 	{
 		if (!$this->urlGenerator) {
 			throw new RuntimeException(sprintf(
@@ -99,7 +99,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	public function get(string $name = NULL, mixed $default = NULL)
+	public function get(string $name = NULL, $default = NULL)
 	{
 		if (!$name) {
 			return $this->request->getAttributes()
@@ -147,7 +147,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	public function set(string $name, mixed $value = NULL): object
+	public function set(string $name, $value = NULL): object
 	{
 		$this->request = $this->request->withAttribute($name, $value);
 
