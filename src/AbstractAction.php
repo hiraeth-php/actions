@@ -68,7 +68,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	protected function response(int $status, array $headers = array()): Response
+	protected function response(int $status, string $content = NULL, array $headers = array()): Response
 	{
 		$response = $this->response;
 
