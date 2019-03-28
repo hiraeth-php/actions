@@ -7,7 +7,7 @@ use Hiraeth;
 use Hiraeth\Routing\ResolverInterface as Resolver;
 use Hiraeth\Routing\UrlGeneratorInterface as UrlGenerator;
 
-use Hiraeth\Templates\ManagerInterface as TemplateManager;
+use Hiraeth\Templates\TemplateManagerInterface as TemplateManager;
 
 
 /**

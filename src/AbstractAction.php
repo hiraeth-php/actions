@@ -5,7 +5,7 @@ namespace Hiraeth\Actions;
 use Hiraeth\Routing\ResolverInterface as Resolver;
 use Hiraeth\Routing\UrlGeneratorInterface as UrlGenerator;
 
-use Hiraeth\Templates\ManagerInterface as TemplateManager;
+use Hiraeth\Templates\TemplateManagerInterface as TemplateManager;
 use Hiraeth\Templates\TemplateInterface as Template;
 
 use Psr\Http\Message\ResponseInterface as Response;
@@ -76,8 +76,8 @@ abstract class AbstractAction implements ActionInterface
 				TemplateManager::class
 			));
 		}
-		
-		return $this->templateManager->load($template_path, $data)
+
+		return $this->templateManager->load($template_path, $data);
 	}
 
 
