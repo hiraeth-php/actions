@@ -92,7 +92,7 @@ abstract class AbstractAction implements ActionInterface
 			$response = $response->withHeader($header, $value);
 		}
 
-		return $response->withStatus($code);
+		return $response->withStatus($status);
 	}
 
 
