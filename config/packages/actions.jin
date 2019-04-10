@@ -7,7 +7,7 @@
 	;
 
 	aliases = {
-
+		"Hiraeth\Actions\AbstractAction": "AbstractAction"
 	}
 
 	;
