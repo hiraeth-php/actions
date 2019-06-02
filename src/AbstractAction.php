@@ -182,7 +182,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	public function setUrlGenerator(UrlGeneratorInterface $url_generator): object
+	public function setUrlGenerator(UrlGenerator $url_generator): object
 	{
 		$this->urlGenerator = $url_generator;
 
