@@ -5,6 +5,7 @@ namespace Hiraeth\Actions;
 use Hiraeth;
 use Hiraeth\Routing\ResolverInterface as Resolver;
 use Hiraeth\Routing\UrlGeneratorInterface as UrlGenerator;
+use Psr\Http\Message\StreamFactoryInterface as StreamFactory;
 use Hiraeth\Templates\TemplateManagerInterface as TemplateManager;
 
 
@@ -37,6 +38,7 @@ class ActionProvider implements Hiraeth\Provider
 	public function __invoke(object $instance, Hiraeth\Application $app): object
 	{
 		$instance->setResolver($app->get(Resolver::class));
+		$instance->setStreamFactory($app->get(StreamFactory::class));
 
 		if ($app->has(UrlGenerator::class)) {
 			$instance->setUrlGenerator($app->get(UrlGenerator::class));

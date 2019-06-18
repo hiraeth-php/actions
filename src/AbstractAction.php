@@ -8,6 +8,7 @@ use Hiraeth\Routing\UrlGeneratorInterface as UrlGenerator;
 use Hiraeth\Templates\TemplateManagerInterface as TemplateManager;
 use Hiraeth\Templates\TemplateInterface as Template;
 
+use Psr\Http\Message\StreamFactoryInterface as StreamFactory;
 use Psr\Http\Message\ResponseInterface as Response;
 
 use RuntimeException;
@@ -33,6 +34,12 @@ abstract class AbstractAction implements ActionInterface
 	 *
 	 */
 	protected $response = NULL;
+
+
+	/**
+	 *
+	 */
+	protected $streamFactory = NULL;
 
 
 	/**
@@ -71,12 +78,13 @@ abstract class AbstractAction implements ActionInterface
 	protected function response(int $status, string $content = NULL, array $headers = array()): Response
 	{
 		$response = $this->response;
+		$stream   = $this->streamFactory->createStream($content);
 
 		foreach ($headers as $header => $value) {
 			$response = $response->withHeader($header, $value);
 		}
 
-		return $response->withStatus($status);
+		return $response->withStatus($status)->withBody($stream);
 	}
 
 
@@ -163,6 +171,17 @@ abstract class AbstractAction implements ActionInterface
 		$this->request  = $resolver->getRequest();
 		$this->response = $resolver->getResponse();
 		$this->resolver = $resolver;
+
+		return $this;
+	}
+
+
+	/**
+	 *
+	 */
+	public function setStreamFactory(StreamFactory $stream_factory): object
+	{
+		$this->streamFactory = $stream_factory;
 
 		return $this;
 	}
