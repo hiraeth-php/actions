@@ -4,8 +4,8 @@ namespace Hiraeth\Actions;
 
 use Hiraeth\Routing\ResolverInterface as Resolver;
 use Hiraeth\Routing\UrlGeneratorInterface as UrlGenerator;
-
-use Hiraeth\Templates\TemplateManagerInterface as TemplateManager;
+use Hiraeth\Session\ManagerInterface as SessionManager;
+use Hiraeth\Templates\ManagerInterface as TemplateManager;
 use Hiraeth\Templates\TemplateInterface as Template;
 
 use Psr\Http\Message\StreamFactoryInterface as StreamFactory;
@@ -34,6 +34,12 @@ abstract class AbstractAction implements ActionInterface
 	 *
 	 */
 	protected $response = NULL;
+
+
+	/**
+	 *
+	 */
+	protected $sessionManager = NULL;
 
 
 	/**
@@ -171,6 +177,17 @@ abstract class AbstractAction implements ActionInterface
 		$this->request  = $resolver->getRequest();
 		$this->response = $resolver->getResponse();
 		$this->resolver = $resolver;
+
+		return $this;
+	}
+
+
+	/**
+	 *
+	 */
+	public function setSessionManager(SessionManager $session_manager): object
+	{
+		$this->sessionManager = $session_manager;
 
 		return $this;
 	}
