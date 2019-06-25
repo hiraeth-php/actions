@@ -14,11 +14,11 @@ interface ActionInterface
 	/**
 	 *
 	 */
-	public function setResolver(Resolver $resolver): object;
+	public function setResolver(Resolver $resolver): ActionInterface;
 
 
 	/**
 	 *
 	 */
-	public function setStreamFactory(StreamFactoryInterface $stream_factory): object;
+	public function setStreamFactory(StreamFactoryInterface $stream_factory): ActionInterface;
 }

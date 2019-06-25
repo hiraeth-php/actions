@@ -63,7 +63,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	protected function redirect($location, array $params = array(), $type = 303): Response
+	protected function redirect($location, array $params = array()): Response
 	{
 		if (!$this->urlGenerator) {
 			throw new RuntimeException(sprintf(
@@ -72,7 +72,7 @@ abstract class AbstractAction implements ActionInterface
 			));
 		}
 
-		return $this->response($type, NULL, [
+		return $this->response(303, [
 			'Location' => $this->urlGenerator->anchor($location, $params)
 		]);
 	}
@@ -83,7 +83,7 @@ abstract class AbstractAction implements ActionInterface
 	 */
 	protected function response(int $status, string $content = NULL, array $headers = array()): Response
 	{
-		$response = $this->response;
+		$response = $this->resolver->getResponse();
 		$stream   = $this->streamFactory->createStream($content);
 
 		foreach ($headers as $header => $value) {
@@ -161,7 +161,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	public function set(string $name, $value = NULL): object
+	public function set(string $name, $value = NULL): ActionInterface
 	{
 		$this->request = $this->request->withAttribute($name, $value);
 
@@ -172,10 +172,9 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	public function setResolver(Resolver $resolver): object
+	public function setResolver(Resolver $resolver): ActionInterface
 	{
 		$this->request  = $resolver->getRequest();
-		$this->response = $resolver->getResponse();
 		$this->resolver = $resolver;
 
 		return $this;
@@ -185,7 +184,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	public function setSessionManager(SessionManager $session_manager): object
+	public function setSessionManager(SessionManager $session_manager): ActionInterface
 	{
 		$this->sessionManager = $session_manager;
 
@@ -196,7 +195,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	public function setStreamFactory(StreamFactory $stream_factory): object
+	public function setStreamFactory(StreamFactory $stream_factory): ActionInterface
 	{
 		$this->streamFactory = $stream_factory;
 
@@ -207,7 +206,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	public function setTemplateManager(TemplateManager $template_manager): object
+	public function setTemplateManager(TemplateManager $template_manager): ActionInterface
 	{
 		$this->templateManager = $template_manager;
 
@@ -218,7 +217,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	public function setUrlGenerator(UrlGenerator $url_generator): object
+	public function setUrlGenerator(UrlGenerator $url_generator): ActionInterface
 	{
 		$this->urlGenerator = $url_generator;
 
