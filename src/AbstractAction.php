@@ -72,7 +72,7 @@ abstract class AbstractAction implements ActionInterface
 			));
 		}
 
-		return $this->response(303, [
+		return $this->response(303, NULL, [
 			'Location' => $this->urlGenerator->anchor($location, $params)
 		]);
 	}
@@ -84,7 +84,7 @@ abstract class AbstractAction implements ActionInterface
 	protected function response(int $status, string $content = NULL, array $headers = array()): Response
 	{
 		$response = $this->resolver->getResponse();
-		$stream   = $this->streamFactory->createStream($content);
+		$stream   = $this->streamFactory->createStream($content ?: '');
 
 		foreach ($headers as $header => $value) {
 			$response = $response->withHeader($header, $value);
