@@ -63,56 +63,6 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	protected function redirect($location, array $params = array()): Response
-	{
-		if (!$this->urlGenerator) {
-			throw new RuntimeException(sprintf(
-				'Redirect is not supported, no implementation for "%s" is registered',
-				UrlGenerator::class
-			));
-		}
-
-		return $this->response(303, NULL, [
-			'Location' => $this->urlGenerator->anchor($location, $params)
-		]);
-	}
-
-
-	/**
-	 *
-	 */
-	protected function response(int $status, string $content = NULL, array $headers = array()): Response
-	{
-		$response = $this->resolver->getResponse();
-		$stream   = $this->streamFactory->createStream($content ?: '');
-
-		foreach ($headers as $header => $value) {
-			$response = $response->withHeader($header, $value);
-		}
-
-		return $response->withStatus($status)->withBody($stream);
-	}
-
-
-	/**
-	 *
-	 */
-	protected function template(string $template_path, array $data = array()): Template
-	{
-		if (!$this->templateManager) {
-			throw new RuntimeException(sprintf(
-				'Render is not supported, no implementation for "%s" is registered',
-				TemplateManager::class
-			));
-		}
-
-		return $this->templateManager->load($template_path, $data);
-	}
-
-
-	/**
-	 *
-	 */
 	public function get(string $name = NULL, $default = NULL)
 	{
 		if (!$name) {
@@ -222,5 +172,73 @@ abstract class AbstractAction implements ActionInterface
 		$this->urlGenerator = $url_generator;
 
 		return $this;
+	}
+
+
+	/**
+	 *
+	 */
+	protected function flash($type, $message): AbstractAction
+	{
+		if (!$this->sessionManager) {
+			throw new RuntimeException(sprintf(
+				'Flash is not supported, no implementation for "%s" is registered',
+				SessionManager::class
+			));
+		}
+
+		$this->sessionManager->getSegment('messages')->setFlashNow($type, $message);
+
+		return $this;
+	}
+
+
+	/**
+	 *
+	 */
+	protected function redirect($location, array $params = array()): Response
+	{
+		if (!$this->urlGenerator) {
+			throw new RuntimeException(sprintf(
+				'Redirect is not supported, no implementation for "%s" is registered',
+				UrlGenerator::class
+			));
+		}
+
+		return $this->response(303, NULL, [
+			'Location' => $this->urlGenerator->anchor($location, $params)
+		]);
+	}
+
+
+	/**
+	 *
+	 */
+	protected function response(int $status, string $content = NULL, array $headers = array()): Response
+	{
+		$response = $this->resolver->getResponse();
+		$stream   = $this->streamFactory->createStream($content ?: '');
+
+		foreach ($headers as $header => $value) {
+			$response = $response->withHeader($header, $value);
+		}
+
+		return $response->withStatus($status)->withBody($stream);
+	}
+
+
+	/**
+	 *
+	 */
+	protected function template(string $template_path, array $data = array()): Template
+	{
+		if (!$this->templateManager) {
+			throw new RuntimeException(sprintf(
+				'Render is not supported, no implementation for "%s" is registered',
+				TemplateManager::class
+			));
+		}
+
+		return $this->templateManager->load($template_path, $data);
 	}
 }
