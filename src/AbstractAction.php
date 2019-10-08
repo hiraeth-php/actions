@@ -239,6 +239,8 @@ abstract class AbstractAction implements ActionInterface
 			));
 		}
 
-		return $this->templateManager->load($template_path, $data);
+		return $this->templateManager->load($template_path, $data + [
+			'request' => $this->request
+		]);
 	}
 }
