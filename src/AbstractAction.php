@@ -178,7 +178,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	protected function flash($type, $message): AbstractAction
+	protected function flash($type, $message, array $context = array()): AbstractAction
 	{
 		if (!$this->sessionManager) {
 			throw new RuntimeException(sprintf(
@@ -187,7 +187,12 @@ abstract class AbstractAction implements ActionInterface
 			));
 		}
 
+		if ($this->templateManager && $message[0] == '@') {
+			$message = $this->templateManager->load($message, ['type' => $type] + $context)->render();
+		}
+
 		$this->sessionManager->getSegment('messages')->setFlashNow($type, $message);
+		$this->sessionManager->getSegment('context')->setFlashNow($type, $context);
 
 		return $this;
 	}
