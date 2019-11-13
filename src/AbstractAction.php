@@ -211,7 +211,7 @@ abstract class AbstractAction implements ActionInterface
 		}
 
 		return $this->response(303, NULL, [
-			'Location' => $this->urlGenerator->anchor($location, $params)
+			'Location' => $this->urlGenerator->anchor(...func_get_args())
 		]);
 	}
 
