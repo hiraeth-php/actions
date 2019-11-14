@@ -47,7 +47,7 @@ class ActionProvider implements Hiraeth\Provider
 		}
 
 		if ($app->has(Templates\Manager::class)) {
-			$instance->setTemplateManager($app->get(Templates\Manager::class));
+			$instance->setTemplatesManager($app->get(Templates\Manager::class));
 		}
 
 		if ($app->has(Routing\UrlGenerator::class)) {

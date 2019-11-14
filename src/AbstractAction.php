@@ -37,7 +37,7 @@ abstract class AbstractAction implements Action
 	/**
 	 *
 	 */
-	protected $sessionManager = NULL;
+	protected $session = NULL;
 
 
 	/**
@@ -49,7 +49,7 @@ abstract class AbstractAction implements Action
 	/**
 	 *
 	 */
-	protected $templatesManager = NULL;
+	protected $templates = NULL;
 
 
 	/**
@@ -132,9 +132,9 @@ abstract class AbstractAction implements Action
 	/**
 	 *
 	 */
-	public function setSessionManager(Session\Manager $session_manager): Action
+	public function setSessionManager(Session\Manager $session): Action
 	{
-		$this->sessionManager = $session_manager;
+		$this->session = $session;
 
 		return $this;
 	}
@@ -154,9 +154,9 @@ abstract class AbstractAction implements Action
 	/**
 	 *
 	 */
-	public function setTemplatesManager(Templates\Manager $template_manager): Action
+	public function setTemplatesManager(Templates\Manager $templates): Action
 	{
-		$this->templatesManager = $template_manager;
+		$this->templates = $templates;
 
 		return $this;
 	}
@@ -178,19 +178,19 @@ abstract class AbstractAction implements Action
 	 */
 	protected function flash($type, $message, array $context = array()): Action
 	{
-		if (!$this->sessionManager) {
+		if (!$this->session) {
 			throw new RuntimeException(sprintf(
 				'Flash is not supported, no implementation for "%s" is registered',
 				Session\Manager::class
 			));
 		}
 
-		if ($this->templatesManager && $message[0] == '@') {
-			$message = $this->templatesManager->load($message, ['type' => $type] + $context)->render();
+		if ($this->templates && $message[0] == '@') {
+			$message = $this->templates->load($message, ['type' => $type] + $context)->render();
 		}
 
-		$this->sessionManager->getSegment('messages')->setFlashNow($type, $message);
-		$this->sessionManager->getSegment('context')->setFlashNow($type, $context);
+		$this->session->getSegment('messages')->setFlashNow($type, $message);
+		$this->session->getSegment('context')->setFlashNow($type, $context);
 
 		return $this;
 	}
@@ -235,14 +235,14 @@ abstract class AbstractAction implements Action
 	 */
 	protected function template(string $template_path, array $data = array()): Templates\Template
 	{
-		if (!$this->templatesManager) {
+		if (!$this->templates) {
 			throw new RuntimeException(sprintf(
 				'Render is not supported, no implementation for "%s" is registered',
 				Templates\Manager::class
 			));
 		}
 
-		return $this->templatesManager->load($template_path, $data + [
+		return $this->templates->load($template_path, $data + [
 			'request' => $this->request
 		]);
 	}
