@@ -3,10 +3,10 @@
 namespace Hiraeth\Actions;
 
 use Hiraeth;
-use Hiraeth\Routing\ResolverInterface as Resolver;
-use Hiraeth\Routing\UrlGeneratorInterface as UrlGenerator;
-use Hiraeth\Session\ManagerInterface as SessionManager;
-use Hiraeth\Templates\ManagerInterface as TemplateManager;
+
+use Hiraeth\Routing;
+use Hiraeth\Session;
+use Hiraeth\Templates;
 
 use Psr\Http\Message\StreamFactoryInterface as StreamFactory;
 
@@ -25,7 +25,7 @@ class ActionProvider implements Hiraeth\Provider
 	static public function getInterfaces(): array
 	{
 		return [
-			ActionInterface::class
+			Action::class
 		];
 	}
 
@@ -39,19 +39,19 @@ class ActionProvider implements Hiraeth\Provider
 	 */
 	public function __invoke(object $instance, Hiraeth\Application $app): object
 	{
-		$instance->setResolver($app->get(Resolver::class));
+		$instance->setResolver($app->get(Routing\Resolver::class));
 		$instance->setStreamFactory($app->get(StreamFactory::class));
 
-		if ($app->has(SessionManager::class)) {
-			$instance->setSessionManager($app->get(SessionManager::class));
+		if ($app->has(Session\Manager::class)) {
+			$instance->setSessionManager($app->get(Session\Manager::class));
 		}
 
-		if ($app->has(TemplateManager::class)) {
-			$instance->setTemplateManager($app->get(TemplateManager::class));
+		if ($app->has(Templates\Manager::class)) {
+			$instance->setTemplateManager($app->get(Templates\Manager::class));
 		}
 
-		if ($app->has(UrlGenerator::class)) {
-			$instance->setUrlGenerator($app->get(UrlGenerator::class));
+		if ($app->has(Routing\UrlGenerator::class)) {
+			$instance->setUrlGenerator($app->get(Routing\UrlGenerator::class));
 		}
 
 

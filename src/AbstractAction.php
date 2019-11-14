@@ -2,21 +2,19 @@
 
 namespace Hiraeth\Actions;
 
-use Hiraeth\Routing\ResolverInterface as Resolver;
-use Hiraeth\Routing\UrlGeneratorInterface as UrlGenerator;
-use Hiraeth\Session\ManagerInterface as SessionManager;
-use Hiraeth\Templates\ManagerInterface as TemplateManager;
-use Hiraeth\Templates\TemplateInterface as Template;
+use Hiraeth\Routing;
+use Hiraeth\Session;
+use Hiraeth\Templates;
 
-use Psr\Http\Message\StreamFactoryInterface as StreamFactory;
 use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\StreamFactoryInterface as StreamFactory;
 
 use RuntimeException;
 
 /**
  *
  */
-abstract class AbstractAction implements ActionInterface
+abstract class AbstractAction implements Action
 {
 	/**
 	 *
@@ -51,7 +49,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	protected $templateManager = NULL;
+	protected $templatesManager = NULL;
 
 
 	/**
@@ -111,7 +109,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	public function set(string $name, $value = NULL): ActionInterface
+	public function set(string $name, $value = NULL): Action
 	{
 		$this->request = $this->request->withAttribute($name, $value);
 
@@ -122,7 +120,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	public function setResolver(Resolver $resolver): ActionInterface
+	public function setResolver(Routing\Resolver $resolver): Action
 	{
 		$this->request  = $resolver->getRequest();
 		$this->resolver = $resolver;
@@ -134,7 +132,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	public function setSessionManager(SessionManager $session_manager): ActionInterface
+	public function setSessionManager(Session\Manager $session_manager): Action
 	{
 		$this->sessionManager = $session_manager;
 
@@ -145,7 +143,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	public function setStreamFactory(StreamFactory $stream_factory): ActionInterface
+	public function setStreamFactory(StreamFactory $stream_factory): Action
 	{
 		$this->streamFactory = $stream_factory;
 
@@ -156,9 +154,9 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	public function setTemplateManager(TemplateManager $template_manager): ActionInterface
+	public function setTemplatesManager(Templates\Manager $template_manager): Action
 	{
-		$this->templateManager = $template_manager;
+		$this->templatesManager = $template_manager;
 
 		return $this;
 	}
@@ -167,7 +165,7 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	public function setUrlGenerator(UrlGenerator $url_generator): ActionInterface
+	public function setUrlGenerator(Routing\UrlGenerator $url_generator): Action
 	{
 		$this->urlGenerator = $url_generator;
 
@@ -178,17 +176,17 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	protected function flash($type, $message, array $context = array()): AbstractAction
+	protected function flash($type, $message, array $context = array()): Action
 	{
 		if (!$this->sessionManager) {
 			throw new RuntimeException(sprintf(
 				'Flash is not supported, no implementation for "%s" is registered',
-				SessionManager::class
+				Session\Manager::class
 			));
 		}
 
-		if ($this->templateManager && $message[0] == '@') {
-			$message = $this->templateManager->load($message, ['type' => $type] + $context)->render();
+		if ($this->templatesManager && $message[0] == '@') {
+			$message = $this->templatesManager->load($message, ['type' => $type] + $context)->render();
 		}
 
 		$this->sessionManager->getSegment('messages')->setFlashNow($type, $message);
@@ -206,7 +204,7 @@ abstract class AbstractAction implements ActionInterface
 		if (!$this->urlGenerator) {
 			throw new RuntimeException(sprintf(
 				'Redirect is not supported, no implementation for "%s" is registered',
-				UrlGenerator::class
+				Routing\UrlGenerator::class
 			));
 		}
 
@@ -235,16 +233,16 @@ abstract class AbstractAction implements ActionInterface
 	/**
 	 *
 	 */
-	protected function template(string $template_path, array $data = array()): Template
+	protected function template(string $template_path, array $data = array()): Templates\Template
 	{
-		if (!$this->templateManager) {
+		if (!$this->templatesManager) {
 			throw new RuntimeException(sprintf(
 				'Render is not supported, no implementation for "%s" is registered',
-				TemplateManager::class
+				Templates\Manager::class
 			));
 		}
 
-		return $this->templateManager->load($template_path, $data + [
+		return $this->templatesManager->load($template_path, $data + [
 			'request' => $this->request
 		]);
 	}
