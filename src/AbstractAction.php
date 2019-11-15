@@ -31,12 +31,6 @@ abstract class AbstractAction implements Action
 	/**
 	 *
 	 */
-	protected $response = NULL;
-
-
-	/**
-	 *
-	 */
 	protected $session = NULL;
 
 
