@@ -19,11 +19,6 @@ abstract class AbstractAction implements Action
 	/**
 	 *
 	 */
-	protected $data = array();
-
-	/**
-	 *
-	 */
 	protected $request = NULL;
 
 
@@ -63,14 +58,14 @@ abstract class AbstractAction implements Action
 	public function get(string $name = NULL, $default = NULL)
 	{
 		if (!$name) {
-			return $this->data
+			return $this->request->getAttributes()
 				+  $this->request->getUploadedFiles()
 				+  $this->request->getParsedBody()
 				+  $this->request->getQueryParams();
 		}
 
-		if (array_key_exists($name, $this->data)) {
-			$value = $this->data[$name];
+		if (array_key_exists($name, $this->request->getAttributes())) {
+			$value = $this->request->getAttributes()[$name];
 
 		} elseif (array_key_exists($name, $this->request->getUploadedFiles())) {
 			$value = $this->request->getUploadedFiles()[$name];
@@ -98,7 +93,7 @@ abstract class AbstractAction implements Action
 	 */
 	public function has(string $name): bool
 	{
-		return array_key_exists($name, $this->data)
+		return array_key_exists($name, $this->request->getAttributes())
 			|| array_key_exists($name, $this->request->getUploadedFiles())
 			|| array_key_exists($name, $this->request->getParsedBody())
 			|| array_key_exists($name, $this->request->getQueryParams());
@@ -110,7 +105,7 @@ abstract class AbstractAction implements Action
 	 */
 	public function set(string $name, $value = NULL): Action
 	{
-		$this->data[$name] = $value;
+		$this->request = $this->request->withAttribute($name, $value);
 
 		return $this;
 	}
