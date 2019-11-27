@@ -2,7 +2,7 @@
 
 namespace Hiraeth\Actions;
 
-use Hiraeth\Routing\Resolver;
+use Hiraeth\Routing;
 use Psr\Http\Message\StreamFactoryInterface as StreamFactory;
 
 
@@ -14,7 +14,7 @@ interface Action
 	/**
 	 *
 	 */
-	public function setResolver(Resolver $resolver): Action;
+	public function setResolver(Routing\Resolver $resolver): Action;
 
 
 	/**

@@ -11,7 +11,7 @@ use Hiraeth\Templates;
 use Psr\Http\Message\StreamFactoryInterface as StreamFactory;
 
 /**
- * Provides required and optional dependencies for actions post-instantiation via setter-injection
+ * {@inheritDoc}
  */
 class ActionProvider implements Hiraeth\Provider
 {
