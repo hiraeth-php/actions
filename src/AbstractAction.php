@@ -59,19 +59,19 @@ abstract class AbstractAction implements Action
 	{
 		if (!$name) {
 			return $this->request->getAttributes()
-				+  $this->request->getUploadedFiles()
 				+  $this->request->getParsedBody()
+				+  $this->request->getUploadedFiles()
 				+  $this->request->getQueryParams();
 		}
 
 		if (array_key_exists($name, $this->request->getAttributes())) {
 			$value = $this->request->getAttributes()[$name];
 
-		} elseif (array_key_exists($name, $this->request->getUploadedFiles())) {
-			$value = $this->request->getUploadedFiles()[$name];
-
 		} elseif (array_key_exists($name, $this->request->getParsedBody())) {
 			$value = $this->request->getParsedBody()[$name];
+
+		} elseif (array_key_exists($name, $this->request->getUploadedFiles())) {
+			$value = $this->request->getUploadedFiles()[$name];
 
 		} elseif (array_key_exists($name, $this->request->getQueryParams())) {
 			$value = $this->request->getQueryParams()[$name];
@@ -94,8 +94,8 @@ abstract class AbstractAction implements Action
 	public function has(string $name): bool
 	{
 		return array_key_exists($name, $this->request->getAttributes())
-			|| array_key_exists($name, $this->request->getUploadedFiles())
 			|| array_key_exists($name, $this->request->getParsedBody())
+			|| array_key_exists($name, $this->request->getUploadedFiles())
 			|| array_key_exists($name, $this->request->getQueryParams());
 	}
 
@@ -184,7 +184,6 @@ abstract class AbstractAction implements Action
 		}
 
 		$this->session->getSegment('messages')->setFlashNow($type, $message);
-		$this->session->getSegment('context')->setFlashNow($type, $context);
 
 		return $this;
 	}
