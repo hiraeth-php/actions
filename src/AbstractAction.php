@@ -58,10 +58,12 @@ abstract class AbstractAction implements Action
 	public function get(string $name = NULL, $default = NULL)
 	{
 		if (!$name) {
-			return $this->request->getAttributes()
-				+  $this->request->getParsedBody()
-				+  $this->request->getUploadedFiles()
-				+  $this->request->getQueryParams();
+			return array_replace_recursive(
+				$this->request->getQueryParams(),
+				$this->request->getUploadedFiles(),
+				$this->request->getParsedBody(),
+				$this->request->getAttributes()
+			);
 		}
 
 		if (array_key_exists($name, $this->request->getAttributes())) {
