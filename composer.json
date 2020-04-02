@@ -14,7 +14,6 @@
     "require": {
         "hiraeth/app": "^2.0",
         "hiraeth/routing": "^1.0",
-        "hiraeth/routing-imp": "^1.0",
         "hiraeth/templates": "^1.0",
         "hiraeth/session": "^1.0"
     },

@@ -14,8 +14,12 @@ use RuntimeException;
 /**
  *
  */
-abstract class AbstractAction implements Action
+abstract class AbstractAction implements Action, Templates\ManagedInterface, Session\ManagedInterface
 {
+	use Templates\ManagedTrait;
+	use Session\ManagedTrait;
+	use Session\FlashTrait;
+
 	/**
 	 *
 	 */
@@ -31,19 +35,7 @@ abstract class AbstractAction implements Action
 	/**
 	 *
 	 */
-	protected $session = NULL;
-
-
-	/**
-	 *
-	 */
 	protected $streamFactory = NULL;
-
-
-	/**
-	 *
-	 */
-	protected $templates = NULL;
 
 
 	/**
@@ -128,17 +120,6 @@ abstract class AbstractAction implements Action
 	/**
 	 *
 	 */
-	public function setSessionManager(Session\Manager $session): Action
-	{
-		$this->session = $session;
-
-		return $this;
-	}
-
-
-	/**
-	 *
-	 */
 	public function setStreamFactory(StreamFactory $stream_factory): Action
 	{
 		$this->streamFactory = $stream_factory;
@@ -150,42 +131,9 @@ abstract class AbstractAction implements Action
 	/**
 	 *
 	 */
-	public function setTemplatesManager(Templates\Manager $templates): Action
-	{
-		$this->templates = $templates;
-
-		return $this;
-	}
-
-
-	/**
-	 *
-	 */
 	public function setUrlGenerator(Routing\UrlGenerator $url_generator): Action
 	{
 		$this->urlGenerator = $url_generator;
-
-		return $this;
-	}
-
-
-	/**
-	 *
-	 */
-	protected function flash($type, $message, array $context = array()): Action
-	{
-		if (!$this->session) {
-			throw new RuntimeException(sprintf(
-				'Flash is not supported, no implementation for "%s" is registered',
-				Session\Manager::class
-			));
-		}
-
-		if ($this->templates && $message[0] == '@') {
-			$message = $this->templates->load($message, ['type' => $type] + $context)->render();
-		}
-
-		$this->session->getSegment('messages')->setFlashNow($type, $message);
 
 		return $this;
 	}
