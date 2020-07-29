@@ -74,7 +74,12 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 			return $default;
 		}
 
-		if ($default !== NULL && !is_object($default)) {
+		if (is_object($default)) {
+			if (!is_object($value)) {
+				$class = get_class($default);
+				$value = new $class($value);
+			}
+		} elseif (!is_null($default)) {
 			settype($value, gettype($default));
 		}
 
