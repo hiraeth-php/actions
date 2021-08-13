@@ -52,8 +52,8 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 		if (!$name) {
 			return array_replace_recursive(
 				$this->request->getQueryParams(),
-				$this->request->getUploadedFiles(),
 				$this->request->getParsedBody(),
+				$this->request->getUploadedFiles(),
 				$this->request->getAttributes()
 			);
 		}
