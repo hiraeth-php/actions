@@ -13,13 +13,14 @@
     ],
     "require": {
         "hiraeth/app": "^2.0",
-        "hiraeth/routing": "^1.0",
-        "hiraeth/templates": "^1.0",
-        "hiraeth/session": "^1.0"
+        "hiraeth/routing": "^2.0",
+        "hiraeth/templates": "^2.0",
+        "hiraeth/session": "^2.0"
     },
     "require-dev": {
-        "hiraeth/fastroute": "^1.0",
-        "phpstan/phpstan": "^0.11.8"
+        "phpstan/phpstan": "^1.0",
+        "hiraeth/fastroute": "^2.0",
+        "hiraeth/diactoros": "^2.0"
     },
     "autoload": {
         "classmap": [
@@ -32,6 +33,11 @@
             "hiraeth/app": {
                 "config": ""
             }
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "imarc/opus": true
         }
     }
 }

@@ -28,6 +28,8 @@ class ActionProvider implements Hiraeth\Provider
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @param Action $instance
 	 */
 	public function __invoke(object $instance, Hiraeth\Application $app): object
 	{

@@ -7,6 +7,7 @@ use Hiraeth\Session;
 use Hiraeth\Templates;
 
 use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\StreamFactoryInterface as StreamFactory;
 
 use RuntimeException;
@@ -21,58 +22,59 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 	use Session\FlashTrait;
 
 	/**
-	 *
+	 * @var mixed[]
+	 */
+	protected $data = array();
+
+
+	/**
+	 * @var Request|null
 	 */
 	protected $request = NULL;
 
 
 	/**
-	 *
+	 * @var Routing\Resolver|null
 	 */
 	protected $resolver = NULL;
 
 
 	/**
-	 *
+	 * @var StreamFactory|null
 	 */
 	protected $streamFactory = NULL;
 
 
 	/**
-	 *
+	 * @var Routing\UrlGenerator|null
 	 */
 	protected $urlGenerator = NULL;
 
 
 	/**
-	 *
+	 * @param mixed $default
+	 * @return mixed|mixed[]
 	 */
 	public function get(string $name = NULL, $default = NULL)
 	{
-		if (!$name) {
-			return array_replace_recursive(
-				$this->request->getQueryParams(),
-				$this->request->getParsedBody(),
-				$this->request->getUploadedFiles(),
-				$this->request->getAttributes()
+		if (!$this->data) {
+			$this->data = array_replace_recursive(
+				(array) $this->request->getQueryParams(),
+				(array) $this->request->getParsedBody(),
+				(array) $this->request->getUploadedFiles(),
+				(array) $this->request->getAttributes()
 			);
 		}
 
-		if (array_key_exists($name, $this->request->getAttributes())) {
-			$value = $this->request->getAttributes()[$name];
+		if (!$name) {
+			return $this->data;
+		}
 
-		} elseif (array_key_exists($name, $this->request->getParsedBody())) {
-			$value = $this->request->getParsedBody()[$name];
-
-		} elseif (array_key_exists($name, $this->request->getUploadedFiles())) {
-			$value = $this->request->getUploadedFiles()[$name];
-
-		} elseif (array_key_exists($name, $this->request->getQueryParams())) {
-			$value = $this->request->getQueryParams()[$name];
-
-		} else {
+		if (!array_key_exists($name, $this->data)) {
 			return $default;
 		}
+
+		$value = $this->data[$name];
 
 		if (is_object($default)) {
 			if (!is_object($value)) {
@@ -92,19 +94,18 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 	 */
 	public function has(string $name): bool
 	{
-		return array_key_exists($name, $this->request->getAttributes())
-			|| array_key_exists($name, $this->request->getParsedBody())
-			|| array_key_exists($name, $this->request->getUploadedFiles())
-			|| array_key_exists($name, $this->request->getQueryParams());
+		return array_key_exists($name, $this->data);
 	}
 
 
 	/**
 	 *
+	 * @param string $name
+	 * @param mixed $value
 	 */
 	public function set(string $name, $value = NULL): Action
 	{
-		$this->request = $this->request->withAttribute($name, $value);
+		$this->data[$name] = $value;
 
 		return $this;
 	}
@@ -145,7 +146,8 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 
 
 	/**
-	 *
+	 * @param mixed $location
+	 * @param mixed[] $params
 	 */
 	protected function redirect($location, array $params = array()): Response
 	{
@@ -163,7 +165,9 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 
 
 	/**
-	 *
+	 * @param int $status
+	 * @param string $content
+	 * @param array<string, string> $headers
 	 */
 	protected function response(int $status, string $content = NULL, array $headers = array()): Response
 	{
@@ -179,7 +183,8 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 
 
 	/**
-	 *
+	 * @param string $template_path
+	 * @param array<string, mixed> $data
 	 */
 	protected function template(string $template_path, array $data = array()): Templates\Template
 	{
