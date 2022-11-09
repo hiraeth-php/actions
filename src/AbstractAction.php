@@ -57,14 +57,7 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 	 */
 	public function get(string $name = NULL, $default = NULL)
 	{
-		if (!$this->data) {
-			$this->data = array_replace_recursive(
-				(array) $this->request->getQueryParams(),
-				(array) $this->request->getParsedBody(),
-				(array) $this->request->getUploadedFiles(),
-				(array) $this->request->getAttributes()
-			);
-		}
+		$this->load();
 
 		if (!$name) {
 			return $this->data;
@@ -92,8 +85,14 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 	/**
 	 *
 	 */
-	public function has(string $name): bool
+	public function has(string $name = NULL): bool
 	{
+		$this->load();
+
+		if (!$name) {
+			return (bool) $this->data;
+		}
+
 		return array_key_exists($name, $this->data);
 	}
 
@@ -140,6 +139,24 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 	public function setUrlGenerator(Routing\UrlGenerator $url_generator): Action
 	{
 		$this->urlGenerator = $url_generator;
+
+		return $this;
+	}
+
+
+	/**
+	 *
+	 */
+	protected function load(): self
+	{
+		if (!$this->data) {
+			$this->data = array_replace_recursive(
+				(array) $this->request->getQueryParams(),
+				(array) $this->request->getParsedBody(),
+				(array) $this->request->getUploadedFiles(),
+				(array) $this->request->getAttributes()
+			);
+		}
 
 		return $this;
 	}
