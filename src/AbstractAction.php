@@ -191,6 +191,22 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 		$response = $this->resolver->getResponse();
 		$stream   = $this->streamFactory->createStream($content ?: '');
 
+		if (!isset(array_change_key_case($headers)['content-type'])) {
+			if ($finfo = finfo_open()) {
+				$mime_type = finfo_buffer($finfo, $stream, FILEINFO_MIME_TYPE);
+				finfo_close($finfo);
+			}
+
+			if (empty($mime_type)) {
+				$mime_type = 'text/plain';
+			}
+
+			$response = $response
+				->withHeader('Content-Type', $mime_type)
+				->withHeader('Content-Length', (string) $stream->getSize())
+			;
+		}
+
 		foreach ($headers as $header => $value) {
 			$response = $response->withHeader($header, $value);
 		}
