@@ -189,29 +189,34 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 	protected function response(int $status, string $content = NULL, array $headers = array()): Response
 	{
 		$response = $this->resolver->getResponse();
-		$stream   = $this->streamFactory->createStream($content ?: '');
-
-		if (!isset(array_change_key_case($headers)['content-type'])) {
-			if ($finfo = finfo_open()) {
-				$mime_type = finfo_buffer($finfo, $stream, FILEINFO_MIME_TYPE);
-				finfo_close($finfo);
-			}
-
-			if (empty($mime_type)) {
-				$mime_type = 'text/plain';
-			}
-
-			$response = $response
-				->withHeader('Content-Type', $mime_type)
-				->withHeader('Content-Length', (string) $stream->getSize())
-			;
-		}
 
 		foreach ($headers as $header => $value) {
 			$response = $response->withHeader($header, $value);
 		}
 
-		return $response->withStatus($status)->withBody($stream);
+		if ($content) {
+			$stream   = $this->streamFactory->createStream($content ?: '');
+			$response = $response->withBody($stream);
+
+			if (!isset(array_change_key_case($headers)['content-type'])) {
+				if ($finfo = finfo_open()) {
+					$mime_type = finfo_buffer($finfo, $stream, FILEINFO_MIME_TYPE);
+					finfo_close($finfo);
+				}
+
+				if (empty($mime_type)) {
+					$mime_type = 'text/plain';
+				}
+
+				$response = $response->withHeader('Content-Type', $mime_type);
+			}
+
+			if (!isset(array_change_key_case($headers)['content-length'])) {
+				$response = $response->withHeader('Content-Length', (string) $stream->getSize());
+			}
+		}
+
+		return $response->withStatus($status);
 	}
 
 
