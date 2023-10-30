@@ -5,9 +5,6 @@ namespace Hiraeth\Actions;
 use Hiraeth;
 
 use Hiraeth\Routing;
-use Hiraeth\Session;
-use Hiraeth\Templates;
-
 use Psr\Http\Message\StreamFactoryInterface as StreamFactory;
 
 /**
