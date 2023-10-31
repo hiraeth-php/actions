@@ -53,6 +53,28 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 
 
 	/**
+	 *
+	 */
+	public function call(Request $request, mixed ...$params): void
+	{
+		$this->request = $request;
+
+		if (is_callable($this)) {
+			$result = call_user_func_array($this, ...$params);
+
+			if ($result instanceof Response) {
+				throw Routing\Interrupt::response($result);;
+			}
+		}
+
+		throw new RuntimeException(sprintf(
+			'Unable to execute call on class "%s", must implement __invoke()',
+			static::class
+		));
+	}
+
+
+	/**
 	 * Get data with a default that will be used for implicit type casting
 	 *
 	 * @return mixed
