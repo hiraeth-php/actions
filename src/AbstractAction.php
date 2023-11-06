@@ -2,6 +2,8 @@
 
 namespace Hiraeth\Actions;
 
+use Exception;
+use Json;
 use Hiraeth\Routing;
 use Hiraeth\Session;
 use Hiraeth\Templates;
@@ -153,7 +155,7 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 	/**
 	 * Set a stream factory for use with `response()`
 	 */
-	public function setStreamFactory(StreamFactory $stream_factory): Action
+	public function setStreamFactory(StreamFactory $stream_factory): self
 	{
 		$this->streamFactory = $stream_factory;
 
@@ -164,7 +166,7 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 	/**
 	 * Set a url generator for use with `redirect()`
 	 */
-	public function setUrlGenerator(Routing\UrlGenerator $url_generator): Action
+	public function setUrlGenerator(Routing\UrlGenerator $url_generator): self
 	{
 		$this->urlGenerator = $url_generator;
 
@@ -173,20 +175,26 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 
 
 	/**
-	 * Load the request data for use with `get()` in order of: query, body, files, attributes
+	 *
 	 */
-	protected function load(): self
+	protected function init(Exception|int $code): self
 	{
-		if (!$this->data) {
-			$this->data = array_replace_recursive(
-				(array) $this->request->getQueryParams(),
-				(array) $this->request->getParsedBody(),
-				(array) $this->request->getUploadedFiles(),
-				(array) $this->request->getAttributes()
-			);
+		if ($code instanceof Exception) {
+			$code = $code->getCode();
 		}
 
+		$this->resolver->init($code);
+
 		return $this;
+	}
+
+
+	/**
+	 *
+	 */
+	protected function object(mixed $data): Json\Normalizer
+	{
+		return Json\Prepare($data);
 	}
 
 
@@ -204,7 +212,13 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 			));
 		}
 
-		return $this->response(303, NULL, [
+		$status = $this->resolver->getResponse()->getStatusCode();
+
+		if (!in_array(floor($status / 100), [3])) {
+			$status = 303;
+		}
+
+		return $this->response($status, NULL, [
 			'Location' => ($this->urlGenerator)(...func_get_args())
 		]);
 	}
@@ -215,34 +229,31 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 	 *
 	 * @param array<string, string> $headers
 	 */
-	protected function response(int $status, string $content = NULL, array $headers = array()): Response
+	protected function response(int $status, Response|string|null $content = NULL, array $headers = array()): Response
 	{
-		$response = $this->response;
+		$response = !$content instanceof Response
+			? $this->response
+			: $content
+		;
 
 		foreach ($headers as $header => $value) {
 			$response = $response->withHeader($header, $value);
 		}
 
-		if ($content) {
-			$stream   = $this->streamFactory->createStream((string) $content);
+		if (is_string($content)) {
+			$stream   = $this->streamFactory->createStream($content);
 			$response = $response->withBody($stream);
 
 			if (!isset(array_change_key_case($headers)['content-type'])) {
-				if ($finfo = finfo_open()) {
-					$mime_type = finfo_buffer($finfo, $stream, FILEINFO_MIME_TYPE);
-					finfo_close($finfo);
-				}
-
-				if (empty($mime_type)) {
-					$mime_type = 'text/plain';
-				}
-
-				$response = $response->withHeader('Content-Type', $mime_type);
+				$mime_type = $this->resolver->getType($stream);
+				$response  = $response->withHeader('Content-Type', $mime_type);
 			}
+		}
 
-			if (!isset(array_change_key_case($headers)['content-length'])) {
-				$response = $response->withHeader('Content-Length', (string) $stream->getSize());
-			}
+		if (!isset(array_change_key_case($headers)['content-length'])) {
+			$response = $response->withHeader(
+				'Content-Length', $response->getBody()->getSize()
+			);
 		}
 
 		return $response->withStatus($status);
@@ -266,5 +277,23 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 		return $this->templates->load($template_path, $data + [
 			'request' => $this->request
 		]);
+	}
+
+
+	/**
+	 * Load the request data for use with `get()` in order of: query, body, files, attributes
+	 */
+	private function load(): self
+	{
+		if (!$this->data) {
+			$this->data = array_replace_recursive(
+				(array) $this->request->getQueryParams(),
+				(array) $this->request->getParsedBody(),
+				(array) $this->request->getUploadedFiles(),
+				(array) $this->request->getAttributes()
+			);
+		}
+
+		return $this;
 	}
 }
