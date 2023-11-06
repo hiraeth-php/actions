@@ -67,7 +67,7 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 			));
 		}
 
-		$result = call_user_func_array($this, ...$params);
+		$result = call_user_func_array($this, $params);
 
 		if ($result instanceof Response) {
 			throw Routing\Interrupt::response($result);;
