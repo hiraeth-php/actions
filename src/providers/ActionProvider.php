@@ -30,10 +30,13 @@ class ActionProvider implements Hiraeth\Provider
 	 */
 	public function __invoke(object $instance, Hiraeth\Application $app): object
 	{
-		$instance->setResolver($app->get(Routing\Resolver::class));
 		$instance->setStreamFactory($app->get(StreamFactory::class));
 
 		if ($instance instanceof AbstractAction) {
+			if ($app->has(Routing\Resolver::class)) {
+				$instance->setResolver($app->get(Routing\Resolver::class));
+			}
+
 			if ($app->has(Routing\UrlGenerator::class)) {
 				$instance->setUrlGenerator($app->get(Routing\UrlGenerator::class));
 			}

@@ -28,3 +28,19 @@
 	providers = [
 		"Hiraeth\Actions\ActionProvider"
 	]
+
+[twig]
+
+	;
+	; Functions - targets can be either an existing function or a class name.  Instances will be
+	; constructed using the dependency injector.
+	;
+
+	functions = {
+		"action": {
+			"target": "Hiraeth\Actions\TwigFunction",
+			"options": {
+				"needs_context": true
+			}
+		}
+	}
