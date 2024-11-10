@@ -173,21 +173,16 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 			$response = $response->withBody($stream);
 
 			if (!isset(array_change_key_case($headers)['content-type'])) {
-				if (isset($this->resolver) && $this->resolver instanceof Routing\Resolver) {
-					$mime_type = $this->resolver->getType($stream);
+				$finfo = finfo_open();
 
-				} else {
-					$finfo = finfo_open();
+				if ($finfo) {
+					$mime_type = finfo_buffer($finfo, $stream, FILEINFO_MIME_TYPE);
 
-					if ($finfo) {
-						$mime_type = finfo_buffer($finfo, $stream, FILEINFO_MIME_TYPE);
+					finfo_close($finfo);
+				}
 
-						finfo_close($finfo);
-					}
-
-					if (empty($mime_type)) {
-						$mime_type = 'text/plain;charset=UTF-8';
-					}
+				if (empty($mime_type)) {
+					$mime_type = 'text/plain;charset=UTF-8';
 				}
 
 				$response  = $response->withHeader('Content-Type', $mime_type);
