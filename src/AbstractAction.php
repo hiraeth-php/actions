@@ -116,7 +116,7 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 	/**
 	 * Set a custom value in the data
 	 */
-	public function set(string $name, mixed $value = NULL): Action
+	public function set(string $name, mixed $value = NULL): static
 	{
 		$this->data[$name] = $value;
 
