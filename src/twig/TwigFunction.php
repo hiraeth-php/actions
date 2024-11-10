@@ -2,7 +2,8 @@
 
 namespace Hiraeth\Actions;
 
-use Hiraeth\Application;
+use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  *
@@ -10,17 +11,17 @@ use Hiraeth\Application;
 class TwigFunction
 {
 	/**
-	 * @var Application
+	 * @var ContainerInterface
 	 */
-	protected $app;
+	protected $container;
 
 
 	/**
 	 *
 	 */
-	public function __construct(Application $app)
+	public function __construct(ContainerInterface $app)
 	{
-		$this->app = $app;
+		$this->container = $app;
 	}
 
 
@@ -30,18 +31,18 @@ class TwigFunction
 	 */
 	public function __invoke(array &$context, string $class): void
 	{
-		$action  = $this->app->get(str_replace(':', '\\', $class));
+		$action     = $this->container->get(str_replace(':', '\\', $class));
+		$response   = $this->container->get(ResponseInterface::class);
 
 		if (isset($context['route'])) {
-			$result = $action->call($context['request'], $context['route']->getParameters());
+			$parameters = $context['route']->getParameters();
 		} else {
-			if (isset($context['parameters'])) {
-				$result = $action->call($context['request'], $context['parameters']);
-			} else {
-				$result = $action->call($context['request']);
-			}
+			$parameters = $context['parameters'] ?? [];
 		}
 
-		$context = array_merge($context, $result);
+		$context = array_merge(
+			$context,
+			$action->call($context['request'], $response, $parameters)
+		);
 	}
 }

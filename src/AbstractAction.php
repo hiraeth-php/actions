@@ -4,6 +4,7 @@ namespace Hiraeth\Actions;
 
 use Exception;
 use Json;
+use Hiraeth\Http;
 use Hiraeth\Routing;
 use Hiraeth\Session;
 use Hiraeth\Templates;
@@ -58,9 +59,10 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 	 * @param array<string, mixed> $params
 	 * @return array<string, mixed>
 	 */
-	public function call(Request $request, array $params = array()): array
+	public function call(Request $request, Response $response, array $parameters = array()): array
 	{
-		$this->request = $request;
+		$this->request  = $request;
+		$this->response = $response;
 
 		if (!is_callable($this)) {
 			throw new RuntimeException(sprintf(
@@ -69,10 +71,10 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 			));
 		}
 
-		$result = call_user_func_array($this, $params);
+		$result = call_user_func_array($this, $parameters);
 
 		if ($result instanceof Response) {
-			throw Routing\Interrupt::response($result);;
+			throw Http\Interrupt::response($result);
 		}
 
 		return $result;
@@ -212,7 +214,7 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 			));
 		}
 
-		$status = $this->resolver->getResponse()->getStatusCode();
+		$status = $this->response->getStatusCode();
 
 		if (!in_array(floor($status / 100), [3])) {
 			$status = 303;
