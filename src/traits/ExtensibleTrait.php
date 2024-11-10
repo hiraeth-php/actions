@@ -2,7 +2,9 @@
 
 namespace Hiraeth\Actions;
 
-interface ExtensibleTrait extends RoutingTrait, SessionTrait, TemplatesTrait
+trait ExtensibleTrait
 {
-
+	use RoutingTrait;
+	use SessionTrait;
+	use TemplatesTrait;
 }
