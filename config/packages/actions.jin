@@ -26,7 +26,7 @@
 	;
 
 	providers = [
-		"Hiraeth\Actions\ActionProvider"
+		"Hiraeth\Actions\ApplicationProvider"
 	]
 
 [twig]

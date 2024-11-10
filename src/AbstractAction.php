@@ -11,18 +11,16 @@ use Hiraeth\Templates;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Message\StreamFactoryInterface as StreamFactory;
 
 use RuntimeException;
 
 /**
  * Provides simple helper methods and ingestion methods action resolution and response
  */
-abstract class AbstractAction implements Action, Templates\ManagedInterface, Session\ManagedInterface
+abstract class AbstractAction implements Http\Action, ExtensibleInterface
 {
-	use Templates\ManagedTrait;
-	use Session\ManagedTrait;
-	use Session\FlashTrait;
+	use Http\ActionTrait;
+	use ExtensibleTrait;
 
 	/**
 	 * @var mixed[]
@@ -35,28 +33,13 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 	protected $request;
 
 	/**
-	 * @var Routing\Resolver
-	 */
-	protected $resolver;
-
-	/**
 	 * @var Response
 	 */
 	protected $response;
 
-	/**
-	 * @var ?StreamFactory
-	 */
-	protected $streamFactory;
 
 	/**
-	 * @var ?Routing\UrlGenerator
-	 */
-	protected $urlGenerator;
-
-
-	/**
-	 * @param array<string, mixed> $params
+	 * @param array<string, mixed> $parameters
 	 * @return array<string, mixed>
 	 */
 	public function call(Request $request, Response $response, array $parameters = array()): array
@@ -142,56 +125,6 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 
 
 	/**
-	 * Set the resolver (and implicitely the default request/response)
-	 */
-	public function setResolver(Routing\Resolver $resolver): Action
-	{
-		$this->request  = $resolver->getRequest();
-		$this->response = $resolver->getResponse();
-		$this->resolver = $resolver;
-
-		return $this;
-	}
-
-
-	/**
-	 * Set a stream factory for use with `response()`
-	 */
-	public function setStreamFactory(StreamFactory $stream_factory): self
-	{
-		$this->streamFactory = $stream_factory;
-
-		return $this;
-	}
-
-
-	/**
-	 * Set a url generator for use with `redirect()`
-	 */
-	public function setUrlGenerator(Routing\UrlGenerator $url_generator): self
-	{
-		$this->urlGenerator = $url_generator;
-
-		return $this;
-	}
-
-
-	/**
-	 *
-	 */
-	protected function init(Exception|int $code): self
-	{
-		if ($code instanceof Exception) {
-			$code = $code->getCode();
-		}
-
-		$this->resolver->init($code);
-
-		return $this;
-	}
-
-
-	/**
 	 *
 	 */
 	protected function object(mixed $data): Json\Normalizer
@@ -207,13 +140,6 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 	 */
 	protected function redirect(mixed $location, array $params = array()): Response
 	{
-		if (!$this->urlGenerator) {
-			throw new RuntimeException(sprintf(
-				'Redirect is not supported, no implementation for "%s" is registered',
-				Routing\UrlGenerator::class
-			));
-		}
-
 		$status = $this->response->getStatusCode();
 
 		if (!in_array(floor($status / 100), [3])) {
@@ -221,7 +147,7 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 		}
 
 		return $this->response($status, NULL, [
-			'Location' => ($this->urlGenerator)(...func_get_args())
+			'Location' => $this->urlGenerator->call(...func_get_args())
 		]);
 	}
 
@@ -247,38 +173,34 @@ abstract class AbstractAction implements Action, Templates\ManagedInterface, Ses
 			$response = $response->withBody($stream);
 
 			if (!isset(array_change_key_case($headers)['content-type'])) {
-				$mime_type = $this->resolver->getType($stream);
+				if (isset($this->resolver) && $this->resolver instanceof Routing\Resolver) {
+					$mime_type = $this->resolver->getType($stream);
+
+				} else {
+					$finfo = finfo_open();
+
+					if ($finfo) {
+						$mime_type = finfo_buffer($finfo, $stream, FILEINFO_MIME_TYPE);
+
+						finfo_close($finfo);
+					}
+
+					if (empty($mime_type)) {
+						$mime_type = 'text/plain;charset=UTF-8';
+					}
+				}
+
 				$response  = $response->withHeader('Content-Type', $mime_type);
 			}
 		}
 
 		if (!isset(array_change_key_case($headers)['content-length'])) {
 			$response = $response->withHeader(
-				'Content-Length', $response->getBody()->getSize()
+				'Content-Length', (string) $response->getBody()->getSize()
 			);
 		}
 
 		return $response->withStatus($status);
-	}
-
-
-	/**
-	 * Get a loaded template with data
-	 *
-	 * @param array<string, mixed> $data
-	 */
-	protected function template(string $template_path, array $data = array()): Templates\Template
-	{
-		if (!$this->templates) {
-			throw new RuntimeException(sprintf(
-				'Render is not supported, no implementation for "%s" is registered',
-				Templates\Manager::class
-			));
-		}
-
-		return $this->templates->load($template_path, $data + [
-			'request' => $this->request
-		]);
 	}
 
 

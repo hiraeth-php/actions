@@ -13,15 +13,16 @@
     ],
     "require": {
         "hiraeth/app": "^3.0",
-        "hiraeth/json": "^3.0",
-        "hiraeth/templates": "^3.0",
-        "hiraeth/session": "^3.0"
+        "hiraeth/json": "^3.0"
     },
     "require-dev": {
         "phpstan/phpstan": "^1.0",
         "phpunit/phpunit": "^10.0",
-        "hiraeth/fastroute": "^3.0",
+        "hiraeth/session": "^3.0",
+        "hiraeth/routing": "^3.0",
+        "hiraeth/templates": "^3.0",
         "hiraeth/diactoros": "^3.0"
+
     },
     "autoload": {
         "classmap": [
