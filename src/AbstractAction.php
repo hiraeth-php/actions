@@ -25,7 +25,7 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 	/**
 	 * @var mixed[]
 	 */
-	protected $data = array();
+	protected $data = [];
 
 	/**
 	 * @var Request
@@ -42,7 +42,7 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 	 * @param array<string, mixed> $parameters
 	 * @return array<string, mixed>
 	 */
-	public function call(Request $request, Response $response, array $parameters = array()): array
+	public function call(Request $request, Response $response, array $parameters = []): array
 	{
 		$this->request  = $request;
 		$this->response = $response;
@@ -69,7 +69,7 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 	 *
 	 * @return mixed
 	 */
-	public function get(string $name = NULL, mixed $default = NULL): mixed
+	public function get(?string $name = NULL, mixed $default = NULL): mixed
 	{
 		$this->load();
 
@@ -85,7 +85,7 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 
 		if (is_object($default)) {
 			if (!is_object($value)) {
-				$class = get_class($default);
+				$class = $default::class;
 				$value = new $class($value);
 			}
 
@@ -101,7 +101,7 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 	/**
 	 * Determine whether or not the data has a value
 	 */
-	public function has(string $name = NULL): bool
+	public function has(?string $name = NULL): bool
 	{
 		$this->load();
 
@@ -138,7 +138,7 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 	 *
 	 * @param array<string, mixed> $params
 	 */
-	protected function redirect(mixed $location, array $params = array()): Response
+	protected function redirect(mixed $location, array $params = []): Response
 	{
 		$status = $this->response->getStatusCode();
 
@@ -157,7 +157,7 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 	 *
 	 * @param array<string, string> $headers
 	 */
-	protected function response(int $status, Response|string|null $content = NULL, array $headers = array()): Response
+	protected function response(int $status, Response|string|null $content = NULL, array $headers = []): Response
 	{
 		$response = !$content instanceof Response
 			? $this->response
