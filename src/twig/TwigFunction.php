@@ -28,16 +28,17 @@ class TwigFunction
 	/**
 	 * @param array<string, mixed> $context
 	 * @param class-string $class
+	 * @param array<string, mixed> $parameters
 	 */
-	public function __invoke(array &$context, string $class): void
+	public function __invoke(array &$context, string $class, array $parameters = []): void
 	{
 		$action     = $this->container->get(str_replace(':', '\\', $class));
 		$response   = $this->container->get(ResponseInterface::class);
 
 		if (isset($context['route'])) {
-			$parameters = $context['route']->getParameters();
+			$parameters += $context['route']->getParameters();
 		} else {
-			$parameters = $context['parameters'] ?? [];
+			$parameters += $context['parameters'] ?? [];
 		}
 
 		$context = array_merge(
