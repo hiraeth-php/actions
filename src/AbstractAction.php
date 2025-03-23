@@ -2,13 +2,8 @@
 
 namespace Hiraeth\Actions;
 
-use Exception;
 use Json;
 use Hiraeth\Http;
-use Hiraeth\Routing;
-use Hiraeth\Session;
-use Hiraeth\Templates;
-
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 

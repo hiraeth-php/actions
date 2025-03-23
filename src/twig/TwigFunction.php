@@ -32,8 +32,11 @@ class TwigFunction
 	 */
 	public function __invoke(array &$context, string $class, array $parameters = []): void
 	{
-		$action     = $this->container->get(str_replace(':', '\\', $class));
-		$response   = $this->container->get(ResponseInterface::class);
+		/**
+		 * @var AbstractAction
+		 */
+		$action   = $this->container->get(str_replace(':', '\\', $class));
+		$response = $this->container->get(ResponseInterface::class);
 
 		if (isset($context['route'])) {
 			$parameters += $context['route']->getParameters();
