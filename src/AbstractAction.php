@@ -32,11 +32,6 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 	 */
 	protected $response;
 
-	/**
-	 *
-	 */
-	abstract public function __invoke();
-
 
 	/**
 	 * @param array<string, mixed> $parameters
