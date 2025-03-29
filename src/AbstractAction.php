@@ -6,7 +6,7 @@ use Json;
 use Hiraeth\Http;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-
+use ReflectionMethod;
 use RuntimeException;
 
 /**
@@ -32,6 +32,11 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 	 */
 	protected $response;
 
+	/**
+	 *
+	 */
+	abstract public function __invoke();
+
 
 	/**
 	 * @param array<string, mixed> $parameters
@@ -47,6 +52,18 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 				'Unable to execute call on class "%s", must implement __invoke()',
 				static::class
 			));
+		}
+
+		$method    = new ReflectionMethod($this, '__invoke');
+		$arguments = array_map(
+			fn($argument) => $argument->getName(),
+			$method->getParameters()
+		);
+
+		foreach ($parameters as $key => $value) {
+			if (!in_array($key, $arguments)) {
+				unset($parameters[$key]);
+			}
 		}
 
 		$result = call_user_func_array($this, $parameters);
