@@ -37,16 +37,11 @@ class TwigFunction
 		 */
 		$action   = $this->container->get(str_replace(':', '\\', $class));
 		$response = $this->container->get(ResponseInterface::class);
-
-		if (isset($context['route'])) {
-			$parameters += $context['route']->getParameters();
-		} else {
-			$parameters += $context['parameters'] ?? [];
-		}
-
-		$context = array_merge(
+		$context  = array_merge(
 			$context,
-			$action->call($context['request'], $response, $parameters)
+			$action->call($context['request'], $response, $parameters + (
+				$context['parameters'] ?? []
+			))
 		);
 	}
 }

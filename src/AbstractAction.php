@@ -132,6 +132,24 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 
 
 	/**
+	 * Load the request data for use with `get()` in order of: query, body, files, attributes
+	 */
+	protected function load(): self
+	{
+		if (!$this->data) {
+			$this->data = array_replace_recursive(
+				(array) $this->request->getQueryParams(),
+				(array) $this->request->getParsedBody(),
+				(array) $this->request->getUploadedFiles(),
+				(array) $this->request->getAttributes()
+			);
+		}
+
+		return $this;
+	}
+
+
+	/**
 	 *
 	 */
 	protected function object(mixed $data): Json\Normalizer
@@ -203,23 +221,5 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 		}
 
 		return $response->withStatus($status);
-	}
-
-
-	/**
-	 * Load the request data for use with `get()` in order of: query, body, files, attributes
-	 */
-	private function load(): self
-	{
-		if (!$this->data) {
-			$this->data = array_replace_recursive(
-				(array) $this->request->getQueryParams(),
-				(array) $this->request->getParsedBody(),
-				(array) $this->request->getUploadedFiles(),
-				(array) $this->request->getAttributes()
-			);
-		}
-
-		return $this;
 	}
 }
