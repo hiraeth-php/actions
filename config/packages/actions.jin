@@ -38,7 +38,7 @@
 
 	functions = {
 		"action": {
-			"target": "Hiraeth\Actions\TwigFunction",
+			"target": "Hiraeth\Actions\Twig\ActionFunction",
 			"options": {
 				"needs_context": true
 			}
