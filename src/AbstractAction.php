@@ -172,7 +172,7 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 		}
 
 		return $this->response($status, NULL, [
-			'Location' => $this->urlGenerator->call(...func_get_args())
+			'Location' => $this->route(...func_get_args())
 		]);
 	}
 
@@ -221,5 +221,13 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 		}
 
 		return $response->withStatus($status);
+	}
+
+	/**
+	 * @param array<string, mixed> $params
+	 */
+	protected function route(mixed $location, array $params = []): string
+	{
+		return $this->urlGenerator->call(...func_get_args());
 	}
 }
