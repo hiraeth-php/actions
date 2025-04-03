@@ -134,15 +134,25 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 	/**
 	 * Load the request data for use with `get()` in order of: query, body, files, attributes
 	 */
-	protected function load(): self
+	protected function load(bool $strict = FALSE): self
 	{
 		if (!$this->data) {
-			$this->data = array_replace_recursive(
-				(array) $this->request->getQueryParams(),
-				(array) $this->request->getParsedBody(),
-				(array) $this->request->getUploadedFiles(),
-				(array) $this->request->getAttributes()
-			);
+			if ($this->request->getMethod() == 'GET') {
+				$this->data = array_replace_recursive(
+					$strict ? [] : (array) $this->request->getParsedBody(),
+					$strict ? [] : (array) $this->request->getUploadedFiles(),
+					(array) $this->request->getQueryParams(),
+					(array) $this->request->getAttributes()
+				);
+
+			} else {
+				$this->data = array_replace_recursive(
+					$strict ? [] : (array) $this->request->getQueryParams(),
+					(array) $this->request->getParsedBody(),
+					(array) $this->request->getUploadedFiles(),
+					(array) $this->request->getAttributes()
+				);
+			}
 		}
 
 		return $this;
