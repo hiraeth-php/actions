@@ -56,7 +56,7 @@ class ActionFunction
 			$context,
 			$action->call($context['request'], $response, $parameters + (
 				$context['parameters'] ?? []
-			))
+			)) ?: []
 		);
 
 		return $context;

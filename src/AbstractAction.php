@@ -35,9 +35,9 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 
 	/**
 	 * @param array<string, mixed> $parameters
-	 * @return array<string, mixed>
+	 * @return ?array<string, mixed>
 	 */
-	public function call(Request $request, Response $response, array $parameters = []): array
+	public function call(Request $request, Response $response, array $parameters = []): ?array
 	{
 		$this->request  = $request;
 		$this->response = $response;
