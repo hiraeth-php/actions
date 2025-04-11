@@ -50,7 +50,7 @@ class ActionFunction
 		/**
 		 * @var AbstractAction
 		 */
-		$action   = $this->app->get();
+		$action   = $this->app->get($class);
 		$response = $this->app->get(ResponseInterface::class);
 		$context  = array_merge(
 			$context,
