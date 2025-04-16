@@ -34,13 +34,15 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 
 
 	/**
+	 * @param array<string, mixed> $properties
 	 * @param array<string, mixed> $parameters
 	 * @return ?array<string, mixed>
 	 */
-	public function call(Request $request, Response $response, array $parameters = []): ?array
+	public function call(array $properties = [], array $parameters = []): ?array
 	{
-		$this->request  = $request;
-		$this->response = $response;
+		foreach ($properties as $key => $value) {
+			$this->$key = $value;
+		}
 
 		if (!is_callable($this)) {
 			throw new RuntimeException(sprintf(
@@ -117,6 +119,21 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 		}
 
 		return array_key_exists($name, $this->data);
+	}
+
+
+	/**
+	 *
+	 */
+	public function init(int $code)
+	{
+		if (property_exists($this, 'resolver')) {
+			$this->resolver->init($code);
+		}
+
+		if (property_exists($this, 'template')) {
+			$this->template->set('_status_', $code);
+		}
 	}
 
 

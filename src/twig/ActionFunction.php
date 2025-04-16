@@ -53,9 +53,16 @@ class ActionFunction
 		$action   = $this->app->get($class);
 		$context  = array_merge(
 			$context,
-			$action->call($context['request'], $context['response'], $parameters + (
-				$context['parameters'] ?? []
-			)) ?: []
+			$action->call(
+				[
+					'request'  => $context['request'],
+					'response' => $context['response'],
+					'template' => $context['this']
+				],
+				$parameters + (
+					$context['parameters'] ?? []
+				)
+			) ?: []
 		);
 
 		return $context;
