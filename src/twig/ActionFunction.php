@@ -51,10 +51,9 @@ class ActionFunction
 		 * @var AbstractAction
 		 */
 		$action   = $this->app->get($class);
-		$response = $this->app->get(ResponseInterface::class);
 		$context  = array_merge(
 			$context,
-			$action->call($context['request'], $response, $parameters + (
+			$action->call($context['request'], $context['response'], $parameters + (
 				$context['parameters'] ?? []
 			)) ?: []
 		);
