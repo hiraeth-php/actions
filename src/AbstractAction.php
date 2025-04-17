@@ -204,14 +204,15 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 	 */
 	protected function redirect(mixed $location, array $params = []): Response
 	{
-		$status = $this->response->getStatusCode();
+		$status   = $this->response->getStatusCode();
+		$location = $this->route(...func_get_args());
 
 		if (!in_array(floor($status / 100), [3])) {
 			$status = 303;
 		}
 
 		return $this->response($status, NULL, [
-			'Location' => $this->route(...func_get_args())
+			'Location' => $location
 		]);
 	}
 
