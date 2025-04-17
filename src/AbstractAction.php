@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use ReflectionMethod;
 use RuntimeException;
+use Stringable;
 
 /**
  * Provides simple helper methods and ingestion methods action resolution and response
@@ -149,6 +150,17 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 
 
 	/**
+	 * {@inheritDoc}
+	 */
+	protected function getTemplateContext(): array
+	{
+		return [
+			'request'  => $this->request,
+			'response' => $this->response
+		];
+	}
+
+	/**
 	 * Load the request data for use with `get()` in order of: query, body, files, attributes
 	 */
 	protected function load(bool $strict = FALSE): self
@@ -209,7 +221,7 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 	 *
 	 * @param array<string, string> $headers
 	 */
-	protected function response(int $status, Response|string|null $content = NULL, array $headers = []): Response
+	protected function response(int $status, Response|Stringable|string|null $content = NULL, array $headers = []): Response
 	{
 		$response = !$content instanceof Response
 			? $this->response
@@ -220,8 +232,8 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 			$response = $response->withHeader($header, $value);
 		}
 
-		if (is_string($content)) {
-			$stream   = $this->streamFactory->createStream($content);
+		if (is_string($content) || $content instanceof Stringable) {
+			$stream   = $this->streamFactory->createStream((string) $content);
 			$response = $response->withBody($stream);
 
 			if (!isset(array_change_key_case($headers)['content-type'])) {
@@ -249,6 +261,7 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 
 		return $response->withStatus($status);
 	}
+
 
 	/**
 	 * @param array<string, mixed> $params
