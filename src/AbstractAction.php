@@ -230,6 +230,10 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 		;
 
 		foreach ($headers as $header => $value) {
+			if (is_array($value)) {
+				$value = json_encode($value);
+			}
+
 			$response = $response->withHeader($header, $value);
 		}
 
@@ -237,7 +241,7 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 			$stream   = $this->streamFactory->createStream((string) $content);
 			$response = $response->withBody($stream);
 
-			if (!isset(array_change_key_case($headers)['content-type'])) {
+			if (!$response->getHeaderLine('Content-Type')) {
 				$finfo = finfo_open();
 
 				if ($finfo) {
@@ -254,10 +258,28 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 			}
 		}
 
-		if (!isset(array_change_key_case($headers)['content-length'])) {
+		if (!$response->getHeaderLine('Content-Length')) {
 			$response = $response->withHeader(
 				'Content-Length', (string) $response->getBody()->getSize()
 			);
+		}
+
+		if ($this->request->getHeaderLine('Hx-Request')) {
+			if (3 == (int) $response->getStatusCode() / 100) {
+				$response = $response->withStatus(200);
+			}
+
+			if ($path = $response->getHeaderLine('Location')) {
+				$response = $response->withHeader('Hx-Location', json_encode(array_filter([
+					'path'    => $path,
+					'select'  => $response->getHeaderLine('Hx-Reselect'),
+					'target'  => $response->getHeaderLine('Hx-Retarget'),
+					'swap'    => $response->getHeaderLine('Hx-Reswap'),
+					'headers' => [
+						'Hx-Boosted' => 'true'
+					]
+				])));
+			}
 		}
 
 		return $response->withStatus($status);
