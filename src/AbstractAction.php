@@ -207,7 +207,7 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 		$status   = $this->response->getStatusCode();
 		$location = $this->route(...func_get_args());
 
-		if (!in_array(floor($status / 100), [3])) {
+		if (intval($status / 100) != 3) {
 			$status = 303;
 		}
 
@@ -264,12 +264,10 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 			);
 		}
 
-		if ($this->request->getHeaderLine('Hx-Request')) {
-			if (3 == (int) $response->getStatusCode() / 100) {
-				$response = $response->withStatus(200);
-			}
+		$response = $response->withStatus($status);
 
-			if ($path = $response->getHeaderLine('Location')) {
+		if ($path = $response->getHeaderLine('Location')) {
+			if ($this->request->getHeaderLine('Hx-Request')) {
 				$response = $response->withHeader('Hx-Location', json_encode(array_filter([
 					'path'    => $path,
 					'select'  => $response->getHeaderLine('Hx-Reselect'),
@@ -280,9 +278,14 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 					]
 				])));
 			}
+
+		} else {
+			if ($response->getStatusCode() == 202) {
+				$response = $response->withStatus(303);
+			}
 		}
 
-		return $response->withStatus($status);
+		return $response;
 	}
 
 
