@@ -99,6 +99,15 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 				$value = new $class($value);
 			}
 
+		} elseif (is_array($default)) {
+			if (!is_array($value)) {
+				if ($value) {
+					settype($value, 'array');
+				} else {
+					$value = [];
+				}
+			}
+
 		} elseif (!is_null($default)) {
 			settype($value, gettype($default));
 
