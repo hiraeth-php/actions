@@ -277,15 +277,24 @@ abstract class AbstractAction implements Http\Action, ExtensibleInterface
 
 		if ($path = $response->getHeaderLine('Location')) {
 			if ($this->request->getHeaderLine('Hx-Request')) {
-				$response = $response->withHeader('Hx-Location', json_encode(array_filter([
-					'path'    => $path,
-					'select'  => $response->getHeaderLine('Hx-Reselect'),
-					'target'  => $response->getHeaderLine('Hx-Retarget'),
-					'swap'    => $response->getHeaderLine('Hx-Reswap'),
-					'headers' => [
-						'Hx-Boosted' => 'true'
-					]
-				])));
+				if (!$this->request->getHeaderLine('Hx-Boosted')) {
+					$response = $response
+						->withoutHeader('Location')
+						->withHeader('Hx-Redirect', $path)
+					;
+				} else {
+					$response = $response
+						->withHeader('Hx-Location', json_encode(array_filter([
+							'path'    => $path,
+							'select'  => $response->getHeaderLine('Hx-Reselect'),
+							'target'  => $response->getHeaderLine('Hx-Retarget'),
+							'swap'    => $response->getHeaderLine('Hx-Reswap'),
+							'headers' => [
+								'Hx-Boosted' => 'true'
+							]
+						])))
+					;
+				}
 			}
 
 		} else {
